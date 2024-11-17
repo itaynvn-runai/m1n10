@@ -1,0 +1,17 @@
+credentials:
+  accessKey: "minio-admin"
+  secretKey: "minio-admin"
+
+ingress:
+  type: "nginx" # default: "nginx", other options: "istio", "openshift"
+  subPath:
+    enabled: false
+    baseDomain: "hello.webapp.me"
+  rootDomain:
+    enabled: false
+    api: "minio-api.hello.webapp.me"
+    ui: "minio-ui.hello.webapp.me"
+
+persistentVolume:
+  storageClass: "standard"
+  size: "10Gi"

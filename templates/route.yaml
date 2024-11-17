@@ -1,0 +1,33 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: minio-ui
+  namespace: { ? { .Values.namespace } }
+spec:
+  host: { ? { .Values.ingress.rootDomain.api } }
+  to:
+    kind: Service
+    name: minio-ui
+    weight: 100
+  port:
+    targetPort: 9090
+  tls:
+    termination: edge
+  wildcardPolicy: None
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: minio-api
+  namespace: { ? { .Values.namespace } }
+spec:
+  host: { ? { .Values.ingress.rootDomain.api } }
+  to:
+    kind: Service
+    name: minio-api
+    weight: 100
+  port:
+    targetPort: 9000
+  tls:
+    termination: edge
+  wildcardPolicy: None

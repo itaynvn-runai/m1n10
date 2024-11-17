@@ -1,0 +1,21 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: check-minio-connection
+  namespace: { ? { .Values.namespace } }
+  labels:
+    app: minio
+spec:
+  template:
+    spec:
+      containers:
+      - name: minio-mc
+        image: "minio/mc:latest"
+        command:
+        - "/bin/sh"
+        - "-c"
+        - |
+          mc alias set myminio http://minio-api:9000 {{ .Values.credentials.accessKey }} {{ .Values.credentials.secretKey }}
+          mc ls myminio
+      restartPolicy: Never
+  backoffLimit: 4

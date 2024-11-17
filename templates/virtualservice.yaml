@@ -1,0 +1,41 @@
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: minio-api
+  namespace: { ? { .Values.namespace } }
+spec:
+  gateways:
+  - istio-gw
+  hosts:
+  - { ? { .Values.ingress.rootDomain.api } }
+  http:
+  - retries:
+      attempts: 5
+      perTryTimeout: 3600s
+    route:
+    - destination:
+        host: minio-api.{{ .Release.Namespace }}.svc.cluster.local
+        port:
+          number: 80
+    timeout: 18000s
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: minio-ui
+  namespace: { ? { .Values.namespace } }
+spec:
+  gateways:
+  - istio-gw
+  hosts:
+  - { ? { .Values.ingress.rootDomain.ui } }
+  http:
+  - retries:
+      attempts: 5
+      perTryTimeout: 3600s
+    route:
+    - destination:
+        host: minio-ui.{{ .Release.Namespace }}.svc.cluster.local
+        port:
+          number: 80
+    timeout: 18000s
