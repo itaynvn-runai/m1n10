@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: minio-client
+  namespace: { ? { .Chart.namespace } }
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: minio-client
+  template:
+    metadata:
+      labels:
+        app: minio-client
+    spec:
+      securityContext:
+        runAsNonRoot: true
+      serviceAccountName: default
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: minio-storage
+      initContainers:
+      - name: healthcheck
+        envFrom:
+        - secretRef:
+            name: minio-creds
+        image: minio/mc:latest
+        command:
+        - "/bin/sh"
+        - "-c"
+        - |
+          mc alias set myminio http://minio-api:9000 $MINIO_ROOT_USER $MINIO_ROOT_PASSWORD
+          until mc ls myminio; do
+            echo "Waiting for Minio connectivity..."
+            sleep 5
+          done
+          echo "Minio client connected successfully to Minio backend"
+      containers:
+      - name: minio-client
+        envFrom:
+        - secretRef:
+            name: minio-creds
+        image: minio/mc:latest
+        command:
+        - "/bin/sh"
+        - "-c"
+        - |
+          echo "Minio client connected successfully, waiting for further commands"
+          sleep infinity
+        imagePullPolicy: IfNotPresent
+        resources:
+          limits:
+            cpu: 500m
+            memory: 500Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop: [ "ALL" ]
+          seccompProfile:
+            type: RuntimeDefault
+      restartPolicy: Always
