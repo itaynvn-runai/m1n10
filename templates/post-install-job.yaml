@@ -2,20 +2,33 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: check-minio-connection
-  namespace: { ? { .Values.namespace } }
+  namespace: {{ .Values.namespace }}
   labels:
     app: minio
 spec:
   template:
     spec:
-      containers:
-      - name: minio-mc
-        image: "minio/mc:latest"
+      initContainers:
+      - name: healthcheck
+        envFrom:
+        - secretRef:
+            name: minio-creds
+        image: minio/mc:latest
         command:
         - "/bin/sh"
         - "-c"
         - |
-          mc alias set myminio http://minio-api:9000 {{ .Values.credentials.accessKey }} {{ .Values.credentials.secretKey }}
-          mc ls myminio
+          mc alias set myminio http://minio-api:9000 $MINIO_ROOT_USER $MINIO_ROOT_PASSWORD
+          until mc ls myminio; do
+            echo "Waiting for Minio connectivity..."
+            sleep 5
+          done
+          echo "Minio client connected successfully to Minio backend"
+      containers:
+      - name: minio-mc
+        image: "minio/mc:latest"
+        command:
+        - sleep
+        - infinity
       restartPolicy: Never
   backoffLimit: 4

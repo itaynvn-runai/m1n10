@@ -2,11 +2,11 @@ kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
   name: minio-storage
-  namespace: { ? { .Values.namespace } }
+  namespace: {{ .Values.namespace }}
 spec:
   accessModes:
   - ReadWriteOnce
   resources:
     requests:
-      storage: { ? { .Values.persistentVolume.size } }
-  storageClassName: { ? { .Values.persistentVolume.storageClass } }
+      storage: {{ .Values.persistentVolume.size }}
+  storageClassName: {{ .Values.persistentVolume.storageClass }}

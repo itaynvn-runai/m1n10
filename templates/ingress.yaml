@@ -1,14 +1,35 @@
-{{- if .Values.wow.enabled }}
 {{- if eq .Values.ingress.type "nginx" }}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: minio-ingress
   namespace: {{ .Values.namespace }}
-  annotations:
 spec:
   ingressClassName: nginx
   rules:
+  {{- if .Values.ingress.subPath }}
+  - host: {{ .Values.ingress.subPath.baseDomain }}
+    http:
+      paths:
+      - path: {{ .Values.ingress.subPath.api }}
+        pathType: Prefix
+        backend:
+          service:
+            name: minio-api
+            port:
+              number: 80
+  - host: {{ .Values.ingress.subPath.baseDomain }}
+    http:
+      paths:
+      - path: {{ .Values.ingress.subPath.ui }}
+        pathType: Prefix
+        backend:
+          service:
+            name: minio-ui
+            port:
+              number: 80
+  {{- end }}
+  {{- if .Values.ingress.rootDomain }}
   - host: {{ .Values.ingress.rootDomain.api }}
     http:
       paths:
@@ -29,6 +50,7 @@ spec:
             name: minio-ui
             port:
               number: 80
+  {{- end }}
 {{- else }}
 {{- printf "Skipping nginx ingress creation" | indent 2 }}
 {{- end }}

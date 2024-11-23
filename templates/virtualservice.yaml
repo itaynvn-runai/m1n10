@@ -1,13 +1,14 @@
+{{- if eq .Values.ingress.type "istio" }}
 apiVersion: networking.istio.io/v1beta1
 kind: VirtualService
 metadata:
   name: minio-api
-  namespace: { ? { .Values.namespace } }
+  namespace: {{ .Values.namespace }}
 spec:
   gateways:
   - istio-gw
   hosts:
-  - { ? { .Values.ingress.rootDomain.api } }
+  - {{ .Values.ingress.rootDomain.api }}
   http:
   - retries:
       attempts: 5
@@ -23,12 +24,12 @@ apiVersion: networking.istio.io/v1beta1
 kind: VirtualService
 metadata:
   name: minio-ui
-  namespace: { ? { .Values.namespace } }
+  namespace: {{ .Values.namespace }}
 spec:
   gateways:
   - istio-gw
   hosts:
-  - { ? { .Values.ingress.rootDomain.ui } }
+  - {{ .Values.ingress.rootDomain.ui }}
   http:
   - retries:
       attempts: 5
@@ -39,3 +40,6 @@ spec:
         port:
           number: 80
     timeout: 18000s
+{{- else }}
+{{- printf "Skipping istio virtualservice creation" | indent 2 }}
+{{- end }}

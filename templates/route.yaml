@@ -1,10 +1,11 @@
+{{- if eq .Values.ingress.type "nginx" }}
 apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
   name: minio-ui
-  namespace: { ? { .Values.namespace } }
+  namespace: {{ .Values.namespace }}
 spec:
-  host: { ? { .Values.ingress.rootDomain.api } }
+  host: {{ .Values.ingress.rootDomain.api }}
   to:
     kind: Service
     name: minio-ui
@@ -19,9 +20,9 @@ apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
   name: minio-api
-  namespace: { ? { .Values.namespace } }
+  namespace: {{ .Values.namespace }}
 spec:
-  host: { ? { .Values.ingress.rootDomain.api } }
+  host: {{ .Values.ingress.rootDomain.api }}
   to:
     kind: Service
     name: minio-api
@@ -31,3 +32,6 @@ spec:
   tls:
     termination: edge
   wildcardPolicy: None
+{{- else }}
+{{- printf "Skipping openshift route creation" | indent 2 }}
+{{- end }}

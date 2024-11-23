@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: minio-client
-  namespace: { ? { .Chart.namespace } }
+  namespace: {{ .Chart.namespace }}
 spec:
   replicas: 1
   selector:
