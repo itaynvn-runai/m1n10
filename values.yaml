@@ -3,14 +3,14 @@ credentials:
   secretKey: "minio-admin"
 
 ingress:
-  type: "nginx" # options: "istio", "openshift"
-  subPath:
-    enabled: false
+  type: "nginx" # options: "istio" / "openshift"
+  subPath: # serves on "https://hello.webapp.me/minio/api" and "https://hello.webapp.me/minio/ui"
+    enabled: true
     baseDomain: "hello.webapp.me"
     api: /minio/api
     ui: /minio/ui
-  rootDomain:
-    enabled: true
+  rootDomain: # serves on "https://minio-api.hello.webapp.me" and "https://minio-ui.hello.webapp.me"
+    enabled: false
     api: "minio-api.hello.webapp.me"
     ui: "minio-ui.hello.webapp.me"
 
